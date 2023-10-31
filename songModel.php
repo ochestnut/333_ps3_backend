@@ -9,7 +9,18 @@ class SongModel
   {
     $this->db = $db;
   }
+  public function checkSong($username, $title)
+  {
+    $query = "SELECT * FROM ratings WHERE user = ? AND title = ?";
+    $stmt = $this->db->prepare($query);
+    $stmt->bind_param("ss", $username, $title);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $numRows = $result->num_rows;
+    $stmt->close();
 
+    return $numRows;
+  }
   public function __addSong($username, $title, $artist, $rating)
   {
     $insert_add = "INSERT INTO ratings (user, title, artist, rating) VALUES (?, ?, ?, ?)";
