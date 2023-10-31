@@ -1,17 +1,27 @@
 <?php
-include 'connection.php';
+
 require_once 'SongModel.php'; // Replace 'SongModel.php' with the actual filename if different.
 
-class SongController
-{
+class SongController  {
+  public function createAction()
+  {    
+    $requestMethod = $_SERVER['REQUEST_METHOD'];
 
-  public function addSong()
-  {
-    
+    if (strtoupper($requestMethod) == 'POST') {
+      $postData = json_decode(file_get_contents('php://input'), true);
+      $postUser = $postData['username'];
+      $postTitle = $postData['title'];
+      $postArtist = $postData['artist'];
+      $postRating = $postData['rating'];
 
-      if (isset($data['username'], $data['title'], $data['artist'], $data['rating'])) {
-        if ($this->songModel->checkSong($data['username'], $data['title']) == 0) {
-          $this->songModel->__addSong($data['username'], $data['title'], $data['artist'], $data['rating']);
+      if (isset($postUser, $postTitle, $postArtist, $postRating)) {
+        
+        require_once 'Database.php';
+        $database = new Database($config);
+        $songModel = new SongModel($database);
+
+        if ($songModel->checkSong($postUser, $postTitle) == 0) {
+          $songModel->__addSong($postUser, $postTitle, $postArtist, $postRating);
           http_response_code(201); // Created
           echo json_encode(['message' => 'Song added successfully']);
         } else {
