@@ -2,8 +2,10 @@
 
 require_once 'SongModel.php'; // Replace 'SongModel.php' with the actual filename if different.
 
-class SongControllerpublic function createAction()
-  {    $requestMethod = $_SERVER['REQUEST_METHOD'];
+class SongController  {
+  public function createAction()
+  {    
+    $requestMethod = $_SERVER['REQUEST_METHOD'];
 
     if (strtoupper($requestMethod) == 'POST') {
       $postData = json_decode(file_get_contents('php://input'), true);
@@ -13,10 +15,8 @@ class SongControllerpublic function createAction()
       $postRating = $postData['rating'];
 
       if (isset($postUser, $postTitle, $postArtist, $postRating)) {
-        // Use the $config array to create a Database instance
-        // Use the $config array to create a Database instance
+        
         require_once 'Database.php';
-
         $database = new Database($config);
         $songModel = new SongModel($database);
 
