@@ -1,26 +1,27 @@
 <?php
-require_once 'connection.php';
+
 require_once 'SongModel.php'; // Replace 'SongModel.php' with the actual filename if different.
 
-class SongController
-{
-  private $db;
-  private $songModel;
+class SongControllerpublic function createAction()
+  {    $requestMethod = $_SERVER['REQUEST_METHOD'];
 
-  public function __construct($db)
-  {
-    $this->db = $db;
-    $this->songModel = new SongModel($db);
-  }
+    if (strtoupper($requestMethod) == 'POST') {
+      $postData = json_decode(file_get_contents('php://input'), true);
+      $postUser = $postData['username'];
+      $postTitle = $postData['title'];
+      $postArtist = $postData['artist'];
+      $postRating = $postData['rating'];
 
-  public function addSong()
-  {
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-      $data = json_decode(file_get_contents('php://input'), true);
+      if (isset($postUser, $postTitle, $postArtist, $postRating)) {
+        // Use the $config array to create a Database instance
+        // Use the $config array to create a Database instance
+        require_once 'Database.php';
 
-      if (isset($data['username'], $data['title'], $data['artist'], $data['rating'])) {
-        if ($this->songModel->checkSong($data['username'], $data['title']) == 0) {
-          $this->songModel->__addSong($data['username'], $data['title'], $data['artist'], $data['rating']);
+        $database = new Database($config);
+        $songModel = new SongModel($database);
+
+        if ($songModel->checkSong($postUser, $postTitle) == 0) {
+          $songModel->__addSong($postUser, $postTitle, $postArtist, $postRating);
           http_response_code(201); // Created
           echo json_encode(['message' => 'Song added successfully']);
         } else {
