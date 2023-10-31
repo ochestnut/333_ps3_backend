@@ -1,6 +1,8 @@
 <?php
+require_once 'connection.php';
 class SongModel
 {
+
   private $db;
 
   public function __construct($db)
