@@ -1,22 +1,13 @@
 <?php
-require_once 'connection.php';
+include 'connection.php';
 require_once 'SongModel.php'; // Replace 'SongModel.php' with the actual filename if different.
 
 class SongController
 {
-  private $db;
-  private $songModel;
-
-  public function __construct($db)
-  {
-    $this->db = $db;
-    $this->songModel = new SongModel($db);
-  }
 
   public function addSong()
   {
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-      $data = json_decode(file_get_contents('php://input'), true);
+    
 
       if (isset($data['username'], $data['title'], $data['artist'], $data['rating'])) {
         if ($this->songModel->checkSong($data['username'], $data['title']) == 0) {
