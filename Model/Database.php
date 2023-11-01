@@ -1,17 +1,21 @@
 <?php
 class Database
 {
-  protected $connection = null;
+  protected $connection;
+
   public function __construct()
   {
-    try {
-      $this->connection = new mysqli(DB_HOST, DB_USERNAME, DB_PASSWORD, DB_DATABASE_NAME);
+    global $config; // Access the $config array from config.php
 
-      if (mysqli_connect_errno()) {
-        throw new Exception("Could not connect to database.");
-      }
-    } catch (Exception $e) {
-      throw new Exception($e->getMessage());
+    $host = $config['host'];
+    $database = $config['database'];
+    $username = $config['username'];
+    $password = $config['password'];
+
+    $this->connection = new mysqli($host, $username, $password, $database);
+
+    if ($this->connection->connect_error) {
+      die("Connection failed: " . $this->connection->connect_error);
     }
   }
   public function select($query = "", $params = [])

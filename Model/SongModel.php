@@ -1,56 +1,65 @@
 <?php
-class songModel extends Database
+require_once 'Database.php';
+class SongModel extends Database
 {
-  public function checkSong($songData)
+  public function checkSongExists($songUser, $songTitle)
   {
     $query = "SELECT * FROM ratings WHERE user = ? AND title = ?";
     $stmt = $this->connection->prepare($query);
-    $stmt->bind_param("ss", $songData['username'], $songData['title']);
+    $stmt->bind_param("ss", $songUser, $songTitle);
     $stmt->execute();
     $result = $stmt->get_result();
-    $numRows = $result->num_rows;
     $stmt->close();
 
-    return $numRows;
+    return $result->num_rows < 1;
   }
-  public function addSong($username, $title, $artist, $rating)
-  {
-    $insert_add = "INSERT INTO ratings (user, title, artist, rating) VALUES (?, ?, ?, ?)";
-    $prep_add = $this->connection->prepare($insert_add);
-    $prep_add->bind_param("sssi", $username, $title, $artist, $rating);
 
-    if ($prep_add->execute()) {
-      echo "Song updated successfully.";
+  public function addSong($userData)
+  {
+    if ($this->checkSongExists($userData['user'], $userData['title'])) {
+      $sql = "INSERT INTO ratings (user, title, artist, rating) VALUES (?, ?, ?, ?)";
+      $stmt = $this->connection->prepare($sql);
+      $stmt->bind_param("sssi", $userData['user'], $userData['title'], $userData['artist'], $userData['rating']);
+
+      if ($stmt->execute()) {
+        $newSongId = $stmt->insert_id;
+        $stmt->close();
+        return ['status' => 'success', 'message' => 'Song added successfully', 'song_id' => $newSongId];
+      } else {
+        return ['status' => 'error', 'message' => 'Error adding song : ' . $stmt->error];
+      }
 
     } else {
-      echo "Error updating song: " . $prep_add->error;
+      //chatGPT for status error message syntax
+      return ['status' => 'error', 'message' => 'Song already exists for this user.'];
     }
   }
 
-  public function editSong($id, $title, $artist, $rating)
+  public function editSong($userData)
   {
-    $update_edit = "UPDATE ratings SET title = ?, artist = ?, rating = ? WHERE id = ?";
-    $prep_edit = $this->connection->prepare($update_edit);
-    $prep_edit->bind_param("ssii", $title, $artist, $rating, $id);
+    $sql = "UPDATE ratings SET title = ?, artist = ?, rating = ? WHERE id = ?";
+    $stmt = $this->connection->prepare($sql);
+    $stmt->bind_param("ssii", $userData['title'], $userData['artist'], $userData['rating'], $userData['id']);
 
-    if ($prep_edit->execute()) {
-      echo "Song updated successfully.";
-
+    if ($stmt->execute()) {
+      $newSongId = $stmt->insert_id;
+      $stmt->close();
+      return ['status' => 'success', 'message' => 'Song updated successfully @', 'song_id' => $newSongId];
     } else {
-      echo "Error updating song: " . $prep_edit->error;
+      return ['status' => 'error', 'message' => 'Error updating song : ' . $stmt->error];
     }
   }
 
   public function deleteSong($id)
   {
-    $delete = "DELETE FROM ratings WHERE id = ?";
-    $prep_delete = $this->connection->prepare($delete);
-    $prep_delete->bind_param("i", $id);
+    $sql = "DELETE FROM ratings WHERE id = ?";
+    $stmt = $this->connection->prepare($sql);
+    $stmt->bind_param("i", $id);
 
-    if ($prep_delete->execute()) {
-      echo "Row deleted successfully.";
+    if ($stmt->execute()) {
+      return "Song with ID $id deleted successfully.";
     } else {
-      echo "Error deleting song: " . $prep_delete->error;
+      return "Error deleting song with ID $id: " . $stmt->error;
     }
   }
 }
