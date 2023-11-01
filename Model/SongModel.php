@@ -13,6 +13,7 @@ class SongModel extends Database
 
     return $result->num_rows < 1;
   }
+
   public function addSong($userData)
   {
     if ($this->checkSongExists($userData['user'], $userData['title'])) {
