@@ -1,6 +1,6 @@
 <?php
 require_once 'connection.php';
-class SongModel
+class SongModel extends Database
 {
 
   private $db;
@@ -21,7 +21,7 @@ class SongModel
 
     return $numRows;
   }
-  public function __addSong($username, $title, $artist, $rating)
+  public function addSong($username, $title, $artist, $rating)
   {
     $insert_add = "INSERT INTO ratings (user, title, artist, rating) VALUES (?, ?, ?, ?)";
     $prep_add = $this->db->prepare($insert_add);
@@ -35,7 +35,7 @@ class SongModel
     }
   }
 
-  public function __editSong($id, $title, $artist, $rating)
+  public function editSong($id, $title, $artist, $rating)
   {
     $update_edit = "UPDATE ratings SET title = ?, artist = ?, rating = ? WHERE id = ?";
     $prep_edit = $this->db->prepare($update_edit);
@@ -49,7 +49,7 @@ class SongModel
     }
   }
 
-  public function __deleteSong($id)
+  public function deleteSong($id)
   {
     $delete = "DELETE FROM ratings WHERE id = ?";
     $prep_delete = $this->db->prepare($delete);
