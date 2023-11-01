@@ -1,16 +1,12 @@
 <?php
-require_once 'connection.php';
+require_once 'Database.php';
 class songModel extends Database
 {
-  public function __construct($config)
-  {
-    parent::__construct($config);
-  }
-  public function checkSong($username, $title)
+  public function checkSong($songData)
   {
     $query = "SELECT * FROM ratings WHERE user = ? AND title = ?";
     $stmt = $this->connection->prepare($query);
-    $stmt->bind_param("ss", $username, $title);
+    $stmt->bind_param("ss", $songData['username'], $songData['title']);
     $stmt->execute();
     $result = $stmt->get_result();
     $numRows = $result->num_rows;
