@@ -8,19 +8,18 @@ class SongController extends BaseController
     $requestMethod = $_SERVER['REQUEST_METHOD'];
 
     if (strtoupper($requestMethod) == 'POST') {
+
       $postData = json_decode(file_get_contents('php://input'), true);
 
-      if (isset($postData['username'], $postData['title'], $postData['artist'], $postData['rating'])) {
-
+      if (is_array($postData) && isset($postData['user'], $postData['title'], $postData['artist'], $postData['rating'])) {
         $songModel = new SongModel();
-
-        if ($songModel->checkSong($postData) == 0) {
-          $songModel->addSong($postData['username'], $postData['title'], $postData['artist'], $postData['rating']);
+        $result = $songModel->addSong($postData);
+        if ($result['status'] === 'success') {
           http_response_code(201); // Created
-          echo json_encode(['message' => 'Song added successfully']);
+          echo json_encode(['message' => 'Song added successfully', 'song_id' => $result['song_id']]);
         } else {
           http_response_code(400); // Bad Request
-          echo json_encode(['error' => 'Song already entered by user: ' . $postData['username']]);
+          echo json_encode(['error' => $result['message']]);
         }
       } else {
         http_response_code(400); // Bad Request
@@ -32,6 +31,7 @@ class SongController extends BaseController
     }
   }
 
+
   public function editAction()
   {
     $requestMethod = $_SERVER['REQUEST_METHOD'];
@@ -42,7 +42,7 @@ class SongController extends BaseController
       if (isset($postData['id'], $postData['title'], $postData['artist'], $postData['rating'])) {
 
         $songModel = new SongModel();
-        $songModel->editSong($postData['username'], $postData['title'], $postData['artist'], $postData['rating']);
+        $songModel->editSong($postData);
 
         http_response_code(200); // OK
         echo json_encode(['message' => 'Song updated successfully']);
