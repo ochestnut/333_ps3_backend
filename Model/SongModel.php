@@ -13,6 +13,10 @@ class songModel extends Database
 
     return $numRows;
   }
+  public function getSong($limit)
+  {
+    return $this->select("SELECT * FROM ratings ORDER BY id ASC LIMIT ?", ["i", $limit]);
+  }
   public function addSong($username, $title, $artist, $rating)
   {
     $insert_add = "INSERT INTO ratings (user, title, artist, rating) VALUES (?, ?, ?, ?)";
