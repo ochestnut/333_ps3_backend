@@ -1,6 +1,6 @@
 <?php // Replace 'SongModel.php' with the actual filename if different.
 
-class SongController extends Database
+class SongController extends BaseController
 {
 
   public function createAction()
@@ -12,7 +12,7 @@ class SongController extends Database
 
       if (isset($postData['username'], $postData['title'], $postData['artist'], $postData['rating'])) {
 
-        $songModel = new SongModel($this->connection);
+        $songModel = new SongModel();
 
         if ($songModel->checkSong($postData) == 0) {
           $songModel->addSong($postData['username'], $postData['title'], $postData['artist'], $postData['rating']);
@@ -41,7 +41,7 @@ class SongController extends Database
 
       if (isset($postData['id'], $postData['title'], $postData['artist'], $postData['rating'])) {
 
-        $songModel = new SongModel($this->connection);
+        $songModel = new SongModel();
         $songModel->editSong($postData['username'], $postData['title'], $postData['artist'], $postData['rating']);
 
         http_response_code(200); // OK
@@ -65,7 +65,7 @@ class SongController extends Database
 
       if (isset($postData['id'])) {
 
-        $songModel = new SongModel($this->connection);
+        $songModel = new SongModel();
         $songModel->deleteSong($postData['id']);
 
         http_response_code(200);

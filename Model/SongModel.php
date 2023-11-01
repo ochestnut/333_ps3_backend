@@ -1,5 +1,4 @@
 <?php
-require_once 'Database.php';
 class songModel extends Database
 {
   public function checkSong($songData)
