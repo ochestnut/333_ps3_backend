@@ -2,9 +2,11 @@
 
 require_once 'SongModel.php'; // Replace 'SongModel.php' with the actual filename if different.
 
-class SongController  {
+class SongController
+{
+
   public function createAction()
-  {    
+  {
     $requestMethod = $_SERVER['REQUEST_METHOD'];
 
     if (strtoupper($requestMethod) == 'POST') {
@@ -15,13 +17,14 @@ class SongController  {
       $postRating = $postData['rating'];
 
       if (isset($postUser, $postTitle, $postArtist, $postRating)) {
-        
+
         require_once 'Database.php';
+
         $database = new Database($config);
         $songModel = new SongModel($database);
 
         if ($songModel->checkSong($postUser, $postTitle) == 0) {
-          $songModel->__addSong($postUser, $postTitle, $postArtist, $postRating);
+          $songModel->addSong($postUser, $postTitle, $postArtist, $postRating);
           http_response_code(201); // Created
           echo json_encode(['message' => 'Song added successfully']);
         } else {
@@ -38,13 +41,24 @@ class SongController  {
     }
   }
 
-  public function editSong()
+  public function editAction()
   {
-    if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
-      $data = json_decode(file_get_contents('php://input'), true);
+    $requestMethod = $_SERVER['REQUEST_METHOD'];
+    if ($requestMethod == 'PUT') {
+      $postData = json_decode(file_get_contents('php://input'), true);
+      $postId = $postData['id'];
+      $postTitle = $postData['title'];
+      $postArtist = $postData['artist'];
+      $postRating = $postData['rating'];
 
-      if (isset($data['id'], $data['title'], $data['artist'], $data['rating'])) {
-        $this->songModel->__editSong($data['id'], $data['title'], $data['artist'], $data['rating']);
+      if (isset($postId, $postTitle, $postArtist, $postRating)) {
+        require_once 'Database.php';
+
+        $database = new Database($config);
+        $songModel = new SongModel($database);
+
+        $songModel->editSong($postId, $postTitle, $postArtist, $postRating);
+
         http_response_code(200); // OK
         echo json_encode(['message' => 'Song updated successfully']);
       } else {
@@ -57,14 +71,23 @@ class SongController  {
     }
   }
 
-  public function deleteSong()
+  public function deleteAction()
   {
-    if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
-      $data = json_decode(file_get_contents('php://input'), true);
+    $requestMethod = $_SERVER['REQUEST_METHOD'];
+    if ($requestMethod == 'DELETE') {
 
-      if (isset($data['id'])) {
-        $this->songModel->__deleteSong($data['id']);
-        http_response_code(200); // OK
+      $postData = json_decode(file_get_contents('php://input'), true);
+      $postId = $postData['id'];
+
+      if (isset($postId)) {
+        require_once 'Database.php';
+
+        $database = new Database($config);
+        $songModel = new SongModel($database);
+
+        $songModel->deleteSong($postId);
+
+        http_response_code(200);
         echo json_encode(['message' => 'Song deleted successfully']);
       } else {
         http_response_code(400); // Bad Request
@@ -75,27 +98,6 @@ class SongController  {
       echo json_encode(['error' => 'Invalid request method']);
     }
   }
-}
-
-$songController = new SongController($db);
-
-// Define your API endpoints
-if (isset($_GET['action'])) {
-  $action = $_GET['action'];
-
-  if ($action === 'add') {
-    $songController->addSong();
-  } elseif ($action === 'edit') {
-    $songController->editSong();
-  } elseif ($action === 'delete') {
-    $songController->deleteSong();
-  } else {
-    http_response_code(400); // Bad Request
-    echo json_encode(['error' => 'Invalid action']);
-  }
-} else {
-  http_response_code(400); // Bad Request
-  echo json_encode(['error' => 'Action not specified']);
 }
 
 ?>
