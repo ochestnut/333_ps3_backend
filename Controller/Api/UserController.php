@@ -17,7 +17,7 @@ class UserController extends BaseController
           echo json_encode(['message' => 'User added successfully']);
         } else {
           http_response_code(400); // Bad Request
-          echo json_encode(['error' => $result['message']]);
+          echo json_encode(['error' => 'user could not be added']);
         }
       } else {
         http_response_code(400); // Bad Request
