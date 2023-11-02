@@ -44,7 +44,7 @@ class UserController extends BaseController
         if ($result['status'] === 'success') {
           // Successful login
           http_response_code(200); // OK
-          echo json_encode(['message' => 'User logged in successfully', 'user_id' => $result['user_id']]);
+          echo json_encode(['message' => 'User logged in successfully', 'username' => $result['username']]);
         } else {
           // Login failed
           http_response_code(401); // Unauthorized

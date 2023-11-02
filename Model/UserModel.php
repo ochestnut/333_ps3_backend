@@ -19,6 +19,7 @@ class UserModel extends Database
     $stmt = $this->connection->prepare($query);
     $stmt->bind_param("s", $enteredUsername);
     $stmt->execute();
+
     $hashPassword = null;
     $stmt->bind_result($hashPassword);
     $stmt->fetch();
