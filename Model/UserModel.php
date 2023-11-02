@@ -15,20 +15,19 @@ class UserModel extends Database
   }
   public function checkPassword($enteredUsername, $enteredPassword)
   {
-    $query = "SELECT password FROM users WHERE username = ? ";
+    $query = "SELECT password FROM users WHERE username = ?";
     $stmt = $this->connection->prepare($query);
     $stmt->bind_param("s", $enteredUsername);
     $stmt->execute();
-    $hashedPassword = $stmt->get_result();
+    $hashPassword = null;
+    $stmt->bind_result($hashPassword);
+    $stmt->fetch();
     $stmt->close();
-    if (isset($hashedPassword)) { //username exists in database
-      if (password_verify($enteredPassword, $hashedPassword)) { //checking password equality
-        return ['status' => 'success', 'username' => $enteredUsername];
-      } else {
-        return ['status' => 'error', 'message' => 'passwords do not match'];
-      }
+
+    if ($hashPassword && password_verify($enteredPassword, $hashPassword)) {
+      return ['status' => 'success', 'username' => $enteredUsername];
     } else {
-      return ['status' => 'error', 'message' => 'username does not have an account'];
+      return ['status' => 'error', 'message' => 'Passwords do not match'];
     }
   }
 
@@ -36,18 +35,16 @@ class UserModel extends Database
   {
     if ($this->checkUsernameAvailability($userData['username'])) {
       if (($userData['password']) === $userData['c_password']) {
+        $storePassword = password_hash($userData['password'], PASSWORD_DEFAULT);
         $sql = "INSERT INTO users (username, password) VALUES (?, ?)";
         $stmt = $this->connection->prepare($sql);
-        $storePassword = password_hash($userData['password'], PASSWORD_DEFAULT);
         $stmt->bind_param("ss", $userData['username'], $storePassword);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        $stmt->close();
-
-        if ($result) {
+        if ($stmt->execute()) {
+          $stmt->close();
           return ['status' => 'success', 'message' => 'Welcome new user', 'username' => $userData['username']];
         } else {
-          return ['status' => 'error', 'message' => 'Error adding user : ' . $stmt->error];
+          $stmt->close();
+          return ['status' => 'error', 'message' => 'Error adding user'];
         }
 
       } else {
