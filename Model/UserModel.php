@@ -17,7 +17,7 @@ class UserModel extends Database
   {
     $query = "SELECT password FROM users WHERE username = ? ";
     $stmt = $this->connection->prepare($query);
-    $stmt->bind_param("ss", $enteredUsername);
+    $stmt->bind_param("s", $enteredUsername);
     $stmt->execute();
     $hashedPassword = $stmt->get_result();
     $stmt->close();
@@ -40,9 +40,11 @@ class UserModel extends Database
         $stmt = $this->connection->prepare($sql);
         $storePassword = password_hash($userData['password'], PASSWORD_DEFAULT);
         $stmt->bind_param("ss", $userData['username'], $storePassword);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $stmt->close();
 
-        if ($stmt->execute()) {
-          $stmt->close();
+        if ($result) {
           return ['status' => 'success', 'message' => 'Welcome new user', 'username' => $userData['username']];
         } else {
           return ['status' => 'error', 'message' => 'Error adding user : ' . $stmt->error];
