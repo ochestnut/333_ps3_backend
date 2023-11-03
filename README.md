@@ -1,4 +1,6 @@
 # 333_ps3_backend
+
+Owen Chestunut and Kyra Fox
 Restructuring the backend created in ps2 to be complaint with MVC
 In this repo, we have taken the features from the previous assignment and created a rest api controller in an mvc structure
 
