@@ -3,6 +3,19 @@
 class SongController extends BaseController
 {
 
+
+  public function listAction()
+  {
+    $requestMethod = $_SERVER['REQUEST_METHOD'];
+
+    if (strtoupper($requestMethod) == 'GET') {
+      $songModel = new SongModel();
+      $songs = $songModel->allSongs();
+      echo json_encode($songs);
+    }
+  }
+
+
   public function createAction()
   {
     $requestMethod = $_SERVER['REQUEST_METHOD'];
@@ -80,6 +93,7 @@ class SongController extends BaseController
     }
   }
 }
+
 
 
 ?>

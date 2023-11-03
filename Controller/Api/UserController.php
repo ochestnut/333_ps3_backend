@@ -14,7 +14,7 @@ class UserController extends BaseController
         $result = $userModel->addUser($postData);
         if ($result['status'] === 'success') {
           http_response_code(201); // Created
-          echo json_encode(['message' => 'User added successfully']);
+          echo json_encode(['message' => 'User added successfully' . $result['data']]);
         } else {
           http_response_code(400); // Bad Request
           echo json_encode(['error' => 'user could not be added']);

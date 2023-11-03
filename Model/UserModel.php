@@ -15,20 +15,26 @@ class UserModel extends Database
   }
   public function checkPassword($enteredUsername, $enteredPassword)
   {
-    $query = "SELECT password FROM users WHERE username = ?";
+    // Check if the username exists
+    $query = "SELECT username, password FROM users WHERE username = ?";
     $stmt = $this->connection->prepare($query);
     $stmt->bind_param("s", $enteredUsername);
     $stmt->execute();
 
     $hashPassword = null;
-    $stmt->bind_result($hashPassword);
+    $existingUsername = null;
+    $stmt->bind_result($existingUsername, $hashPassword);
     $stmt->fetch();
     $stmt->close();
 
-    if ($hashPassword && password_verify($enteredPassword, $hashPassword)) {
-      return ['status' => 'success', 'username' => $enteredUsername];
+    if (isset($existingUsername)) {
+      if (password_verify($enteredPassword, $hashPassword)) {
+        return ['status' => 'success', 'username' => $enteredUsername];
+      } else {
+        return ['status' => 'error', 'message' => 'Passwords do not match'];
+      }
     } else {
-      return ['status' => 'error', 'message' => 'Passwords do not match'];
+      return ['status' => 'error', 'message' => 'Username not found'];
     }
   }
 
