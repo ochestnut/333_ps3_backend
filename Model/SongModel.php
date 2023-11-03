@@ -2,6 +2,18 @@
 require_once 'Database.php';
 class SongModel extends Database
 {
+  public function allSongs()
+  {
+    $query = "SELECT * FROM ratings";
+    $result = $this->connection->query($query);
+
+    if ($result) {
+      return $result->fetch_all(MYSQLI_ASSOC);
+    }
+
+    return [];
+  }
+
   public function checkSongExists($songUser, $songTitle)
   {
     $query = "SELECT * FROM ratings WHERE user = ? AND title = ?";
@@ -13,6 +25,7 @@ class SongModel extends Database
 
     return $result->num_rows < 1;
   }
+
   public function addSong($userData)
   {
     if ($this->checkSongExists($userData['user'], $userData['title'])) {
