@@ -11,7 +11,7 @@ class SongController extends BaseController
     if (strtoupper($requestMethod) == 'GET') {
       $songModel = new SongModel();
       $songs = $songModel->allSongs();
-      echo json_encode($songs);
+      echo json_encode(['status' => 'success', 'songs' => $songs]);
     }
   }
 

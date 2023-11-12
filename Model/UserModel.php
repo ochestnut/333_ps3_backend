@@ -15,40 +15,37 @@ class UserModel extends Database
   }
   public function checkPassword($enteredUsername, $enteredPassword)
   {
-    // Check if the username exists
-    $query = "SELECT username, password FROM users WHERE username = ?";
+
+    $query = "SELECT password FROM users WHERE username = ?";
     $stmt = $this->connection->prepare($query);
     $stmt->bind_param("s", $enteredUsername);
     $stmt->execute();
 
-    $hashPassword = null;
-    $existingUsername = null;
-    $stmt->bind_result($existingUsername, $hashPassword);
+    $binding = null;
+    $stmt->bind_result($binding);
     $stmt->fetch();
     $stmt->close();
 
-    if (isset($existingUsername)) {
-      if (password_verify($enteredPassword, $hashPassword)) {
-        return ['status' => 'success', 'username' => $enteredUsername];
-      } else {
-        return ['status' => 'error', 'message' => 'Passwords do not match'];
-      }
+    if (password_verify($enteredPassword, $binding)) {
+      // Passwords match
+      return true;
     } else {
-      return ['status' => 'error', 'message' => 'Username not found'];
+      // Passwords do not match
+      return false;
     }
   }
 
   public function addUser($userData)
   {
-    if ($this->checkUsernameAvailability($userData['username'])) {
-      if (($userData['password']) === $userData['c_password']) {
-        $storePassword = password_hash($userData['password'], PASSWORD_DEFAULT);
+    if ($this->checkUsernameAvailability($userData['reg_username'])) {
+      if (($userData['reg_password']) === $userData['c_password']) {
+        $storePassword = password_hash($userData['reg_password'], PASSWORD_DEFAULT);
         $sql = "INSERT INTO users (username, password) VALUES (?, ?)";
         $stmt = $this->connection->prepare($sql);
-        $stmt->bind_param("ss", $userData['username'], $storePassword);
+        $stmt->bind_param("ss", $userData['reg_username'], $storePassword);
         if ($stmt->execute()) {
           $stmt->close();
-          return ['status' => 'success', 'message' => 'Welcome new user', 'username' => $userData['username']];
+          return ['status' => 'success', 'message' => 'Welcome new user', 'username' => $userData['reg_username']];
         } else {
           $stmt->close();
           return ['status' => 'error', 'message' => 'Error adding user'];
@@ -64,12 +61,14 @@ class UserModel extends Database
 
   public function loginUser($userData)
   {
-    $result = $this->checkPassword($userData['username'], $userData['password']);
-    if ($result) {
-      return ['status' => 'success', 'message' => 'Welcome back', 'username' => $result['username']];
+    if (($this->checkUsernameAvailability($userData['log_username']))) {
+      return ['error' => 'invalid username', 'message' => 'username already exists in database'];
     } else {
-      return ['status' => 'error', 'message' => $result['message']];
+      if (($this->checkPassword($userData['log_username'], $userData['log_password']))) {
+        return ['status' => 'success', 'message' => 'Logged in successfully', 'username' => $userData['log_username']];
+      }
     }
+
   }
 
 }
